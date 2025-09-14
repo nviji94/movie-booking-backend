@@ -7,7 +7,7 @@ import { AuthRequest } from "../middleware/auth.middleware";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Register user (default role: user)
+// Register the  user (default role: user)
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
