@@ -4,7 +4,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Create 3 Theaters
+  // 1. Create Theaters
   await prisma.theater.createMany({
     data: [
       { name: "Cineplex Downtown", location: "123 Main St" },
