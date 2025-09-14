@@ -4,7 +4,7 @@ model User {
   password  String?
   googleId  String?   @unique
   createdAt DateTime  @default(now())
-  role     String @default("user") // "user" or "admin"
+  role     String @default("user") 
   bookings  Booking[]
 }
 
@@ -19,18 +19,19 @@ model Movie {
   id          Int        @id @default(autoincrement())
   title       String
   durationMin Int
-  rating      Int?       @default(0)       // default value for admin-added movies
-  description String?                         // optional
-  cast        String?                         // optional, can be comma-separated
-  director    String?                         // optional
-  posterUrl   String?                         // optional
+  rating      Int?       @default(0)     
+  description String?                        
+  cast        String?                       
+  director    String?                        
+  posterUrl   String?
+  genre       String               
   screenings  Screening[]
 }
 
 
 model Screening {
   id        Int       @id @default(autoincrement())
-  movie     Movie     @relation(fields: [movieId], references: [id])
+  movie    Movie   @relation(fields: [movieId], references: [id], onDelete: Cascade)
   movieId   Int
   theater   Theater   @relation(fields: [theaterId], references: [id])
   theaterId Int
@@ -41,11 +42,11 @@ model Screening {
 
 model Seat {
   id          Int       @id @default(autoincrement())
-  screening   Screening @relation(fields: [screeningId], references: [id])
+  screening    Screening  @relation(fields: [screeningId], references: [id], onDelete: Cascade)
   screeningId Int
   seatNumber  String
   isBooked    Boolean   @default(false)
-  booking     Booking?  // back-relation
+  booking     Booking? 
 }
 
 
@@ -54,7 +55,7 @@ model Booking {
   id          Int       @id @default(autoincrement())
   user        User      @relation(fields: [userId], references: [id])
   userId      Int
-  screening   Screening @relation(fields: [screeningId], references: [id])
+  screening   Screening  @relation(fields: [screeningId], references: [id], onDelete: Cascade)
   screeningId Int
   seat        Seat      @relation(fields: [seatId], references: [id])
   seatId      Int       @unique

@@ -14,6 +14,38 @@ export const createTheater = async (req: Request, res: Response) => {
   }
 };
 
+// Update a theater
+export const updateTheater = async (req: Request, res: Response) => {
+  const theaterId = Number(req.params.id);
+  const { name, location } = req.body;
+
+  try {
+    const updatedTheater = await prisma.theater.update({
+      where: { id: theaterId },
+      data: { name, location },
+    });
+    res.json(updatedTheater);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: "Could not update theater" });
+  }
+};
+
+// Delete a theater
+export const deleteTheater = async (req: Request, res: Response) => {
+  const theaterId = Number(req.params.id);
+
+  try {
+    await prisma.theater.delete({
+      where: { id: theaterId },
+    });
+    res.json({ message: `Theater ${theaterId} deleted successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: "Could not delete theater" });
+  }
+};
+
 // List all theaters with their screenings and movies
 export const getTheaters = async (_req: Request, res: Response) => {
   const theaters = await prisma.theater.findMany({
@@ -29,9 +61,13 @@ export const getTheaters = async (_req: Request, res: Response) => {
   res.json(theaters);
 };
 
+// Create a new movie
 export const createMovie = async (req: Request, res: Response) => {
-  console.log('request is'+req);
   const { title, durationMin, rating, description, cast, director } = req.body;
+  const genre =
+    typeof req.body.genre === "string" && req.body.genre.trim() !== ""
+      ? req.body.genre
+      : "";
   const posterUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -43,6 +79,7 @@ export const createMovie = async (req: Request, res: Response) => {
         description,
         cast,
         director,
+        genre,
         posterUrl,
       },
     });
@@ -50,6 +87,52 @@ export const createMovie = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(400).json({ error: "Could not create movie" });
+  }
+};
+
+// Update an existing movie
+export const updateMovie = async (req: Request, res: Response) => {
+  const movieId = Number(req.params.id);
+  const { title, durationMin, rating, description, cast, director } = req.body;
+  const genre =
+    typeof req.body.genre === "string" && req.body.genre.trim() !== ""
+      ? req.body.genre
+      : "";
+  const posterUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+  try {
+    const updatedMovie = await prisma.movie.update({
+      where: { id: movieId },
+      data: {
+        title,
+        durationMin: durationMin ? Number(durationMin) : undefined,
+        rating: rating ? Number(rating) : undefined,
+        description,
+        cast,
+        director,
+        genre,
+        ...(posterUrl && { posterUrl }),
+      },
+    });
+    res.json(updatedMovie);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: "Could not update movie" });
+  }
+};
+
+// Delete a movie
+export const deleteMovie = async (req: Request, res: Response) => {
+  const movieId = Number(req.params.id);
+
+  try {
+    await prisma.movie.delete({
+      where: { id: movieId },
+    });
+    res.json({ message: `Movie ${movieId} deleted successfully` });
+  } catch (err) {
+    console.error("Delete movie error:", err);
+    res.status(400).json({ error: "Could not delete movie" });
   }
 };
 
@@ -67,6 +150,22 @@ export const createScreening = async (req: Request, res: Response) => {
     res.json(screening);
   } catch (err) {
     res.status(400).json({ error: "Could not create screening" });
+  }
+};
+
+// theater.controller.ts
+export const getAllScreenings = async (req: Request, res: Response) => {
+  try {
+    const screenings = await prisma.screening.findMany({
+      include: {
+        movie: true,
+        theater: true,
+      },
+    });
+    res.json(screenings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not fetch screenings" });
   }
 };
 

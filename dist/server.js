@@ -37,32 +37,35 @@ app.post("/register", auth_controller_1.register);
 app.post("/login", auth_controller_1.login);
 app.post("/auth/google", auth_controller_1.googleLogin);
 app.get("/me", auth_middleware_1.authMiddleware, auth_controller_1.getMe);
-// =======================
-// THEATER & MOVIE ROUTES
-// =======================
+// ===== THEATERS =====
 app.post("/theaters", auth_middleware_1.authMiddleware, theater_controller_1.createTheater);
 app.get("/theaters", theater_controller_1.getTheaters);
+app.put("/theaters/:id", auth_middleware_1.authMiddleware, theater_controller_1.updateTheater);
+app.delete("/theaters/:id", auth_middleware_1.authMiddleware, theater_controller_1.deleteTheater);
+// ===== MOVIES =====
 app.post("/movies", auth_middleware_1.authMiddleware, upload_middleware_1.upload.single("poster"), theater_controller_1.createMovie);
+app.get("/movies", theater_controller_1.getMovies);
+app.put("/movies/:id", auth_middleware_1.authMiddleware, upload_middleware_1.upload.single("poster"), theater_controller_1.updateMovie);
+app.delete("/movies/:id", auth_middleware_1.authMiddleware, theater_controller_1.deleteMovie);
+// ===== SCREENINGS =====
 app.post("/screenings", auth_middleware_1.authMiddleware, theater_controller_1.createScreening);
+app.get("/screenings", theater_controller_1.getAllScreenings);
+app.get("/theaters/:theaterId/screenings", theater_controller_1.getScreeningsByTheaterAndMovie);
+app.get("/screenings-test", (_req, res) => {
+    res.json({ message: "Screenings route works!" });
+});
+// ===== SEATS =====
 app.post("/screenings/:id/seats", auth_middleware_1.authMiddleware, theater_controller_1.createSeats);
 app.get("/screenings/:id/seats", theater_controller_1.getAllSeats);
-app.get("/movies", theater_controller_1.getMovies);
-app.get("/theaters/:theaterId/screenings", theater_controller_1.getScreeningsByTheaterAndMovie);
-// =======================
 // BOOKING ROUTES
-// =======================
 app.post("/screenings/:id/book", auth_middleware_1.authMiddleware, booking_controller_1.bookSeats);
 app.get("/bookings", booking_controller_1.getBookings);
 app.delete("/bookings/:id", auth_middleware_1.authMiddleware, booking_controller_1.cancelBooking);
-// =======================
 // SOCKET.IO
-// =======================
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
     socket.on("disconnect", () => console.log("User disconnected:", socket.id));
 });
-// =======================
 // START SERVER
-// =======================
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

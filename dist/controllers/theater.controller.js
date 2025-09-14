@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getScreeningsByTheaterAndMovie = exports.getMovies = exports.getAllSeats = exports.createSeats = exports.createScreening = exports.createMovie = exports.getTheaters = exports.createTheater = void 0;
+exports.getScreeningsByTheaterAndMovie = exports.getMovies = exports.getAllSeats = exports.createSeats = exports.getAllScreenings = exports.createScreening = exports.deleteMovie = exports.updateMovie = exports.createMovie = exports.getTheaters = exports.deleteTheater = exports.updateTheater = exports.createTheater = void 0;
 const prisma_1 = require("../prisma");
 // ===== THEATER CONTROLLERS =====
 // Create a new theater
@@ -15,6 +15,38 @@ const createTheater = async (req, res) => {
     }
 };
 exports.createTheater = createTheater;
+// Update a theater
+const updateTheater = async (req, res) => {
+    const theaterId = Number(req.params.id);
+    const { name, location } = req.body;
+    try {
+        const updatedTheater = await prisma_1.prisma.theater.update({
+            where: { id: theaterId },
+            data: { name, location },
+        });
+        res.json(updatedTheater);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(400).json({ error: "Could not update theater" });
+    }
+};
+exports.updateTheater = updateTheater;
+// Delete a theater
+const deleteTheater = async (req, res) => {
+    const theaterId = Number(req.params.id);
+    try {
+        await prisma_1.prisma.theater.delete({
+            where: { id: theaterId },
+        });
+        res.json({ message: `Theater ${theaterId} deleted successfully` });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(400).json({ error: "Could not delete theater" });
+    }
+};
+exports.deleteTheater = deleteTheater;
 // List all theaters with their screenings and movies
 const getTheaters = async (_req, res) => {
     const theaters = await prisma_1.prisma.theater.findMany({
@@ -30,9 +62,12 @@ const getTheaters = async (_req, res) => {
     res.json(theaters);
 };
 exports.getTheaters = getTheaters;
+// Create a new movie
 const createMovie = async (req, res) => {
-    console.log('request is' + req);
     const { title, durationMin, rating, description, cast, director } = req.body;
+    const genre = typeof req.body.genre === "string" && req.body.genre.trim() !== ""
+        ? req.body.genre
+        : "";
     const posterUrl = req.file ? `/uploads/${req.file.filename}` : null;
     try {
         const movie = await prisma_1.prisma.movie.create({
@@ -43,6 +78,7 @@ const createMovie = async (req, res) => {
                 description,
                 cast,
                 director,
+                genre,
                 posterUrl,
             },
         });
@@ -54,6 +90,51 @@ const createMovie = async (req, res) => {
     }
 };
 exports.createMovie = createMovie;
+// Update an existing movie
+const updateMovie = async (req, res) => {
+    const movieId = Number(req.params.id);
+    const { title, durationMin, rating, description, cast, director } = req.body;
+    const genre = typeof req.body.genre === "string" && req.body.genre.trim() !== ""
+        ? req.body.genre
+        : "";
+    const posterUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    try {
+        const updatedMovie = await prisma_1.prisma.movie.update({
+            where: { id: movieId },
+            data: {
+                title,
+                durationMin: durationMin ? Number(durationMin) : undefined,
+                rating: rating ? Number(rating) : undefined,
+                description,
+                cast,
+                director,
+                genre,
+                ...(posterUrl && { posterUrl }),
+            },
+        });
+        res.json(updatedMovie);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(400).json({ error: "Could not update movie" });
+    }
+};
+exports.updateMovie = updateMovie;
+// Delete a movie
+const deleteMovie = async (req, res) => {
+    const movieId = Number(req.params.id);
+    try {
+        await prisma_1.prisma.movie.delete({
+            where: { id: movieId },
+        });
+        res.json({ message: `Movie ${movieId} deleted successfully` });
+    }
+    catch (err) {
+        console.error("Delete movie error:", err);
+        res.status(400).json({ error: "Could not delete movie" });
+    }
+};
+exports.deleteMovie = deleteMovie;
 // Schedule a screening (movie + theater + time)
 const createScreening = async (req, res) => {
     const { movieId, theaterId, startTime } = req.body;
@@ -72,6 +153,23 @@ const createScreening = async (req, res) => {
     }
 };
 exports.createScreening = createScreening;
+// theater.controller.ts
+const getAllScreenings = async (req, res) => {
+    try {
+        const screenings = await prisma_1.prisma.screening.findMany({
+            include: {
+                movie: true,
+                theater: true,
+            },
+        });
+        res.json(screenings);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Could not fetch screenings" });
+    }
+};
+exports.getAllScreenings = getAllScreenings;
 const createSeats = async (req, res) => {
     const screeningId = Number(req.params.id); // get ID from URL
     const { seatNumbers } = req.body; // seatNumbers = ["A1", "A2", "B1", ...]
