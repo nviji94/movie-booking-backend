@@ -36,13 +36,22 @@ import {
 import { authMiddleware } from "./middleware/auth.middleware";
 import { upload } from "./middleware/upload.middleware";
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://movie-booking-frontend-t58f.onrender.com",
+];
+
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "http://localhost:3000", credentials: true }, // allow frontend
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
 });
+
 
 // Attach io to app for controllers
 app.set("io", io);
@@ -50,10 +59,17 @@ app.set("io", io);
 // ===== CORS =====
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
