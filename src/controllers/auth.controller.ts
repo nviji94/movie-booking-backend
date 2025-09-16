@@ -23,8 +23,9 @@ export const register = async (req: Request, res: Response) => {
     );
 
     res.json({ token, role: user.role });
-  } catch {
-    res.status(400).json({ error: "User already exists" });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: "Failed to register the user" });
   }
 };
 
