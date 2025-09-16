@@ -18,9 +18,15 @@ const upload_middleware_1 = require("./middleware/upload.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
+
+
 const io = new socket_io_1.Server(server, {
-    cors: { origin: "http://localhost:3000", credentials: true }, // allow frontend
+  cors: {
+    origin: ["http://localhost:3000", "https://movie-booking-frontend-t58f.onrender.com"],
+    credentials: true,
+  },
 });
+
 // Attach io to app for controllers
 app.set("io", io);
 // ===== CORS =====
