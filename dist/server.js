@@ -1,9 +1,7 @@
 "use strict";
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
@@ -21,12 +19,10 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 
+
 const io = new socket_io_1.Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "https://movie-booking-frontend-t58f.onrender.com",
-    ],
+    origin: ["http://localhost:3000", "https://movie-booking-frontend-t58f.onrender.com"],
     credentials: true,
   },
 });
@@ -34,14 +30,12 @@ const io = new socket_io_1.Server(server, {
 // Attach io to app for controllers
 app.set("io", io);
 // ===== CORS =====
-app.use(
-  (0, cors_1.default)({
+app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
     credentials: true,
-  })
-);
+}));
 app.use(express_1.default.json());
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express_1.default.static("uploads"));
 // =======================
 // AUTH ROUTES
 // =======================
@@ -50,81 +44,34 @@ app.post("/login", auth_controller_1.login);
 app.post("/auth/google", auth_controller_1.googleLogin);
 app.get("/me", auth_middleware_1.authMiddleware, auth_controller_1.getMe);
 // ===== THEATERS =====
-app.post(
-  "/theaters",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.createTheater
-);
+app.post("/theaters", auth_middleware_1.authMiddleware, theater_controller_1.createTheater);
 app.get("/theaters", theater_controller_1.getTheaters);
-app.put(
-  "/theaters/:id",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.updateTheater
-);
-app.delete(
-  "/theaters/:id",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.deleteTheater
-);
+app.put("/theaters/:id", auth_middleware_1.authMiddleware, theater_controller_1.updateTheater);
+app.delete("/theaters/:id", auth_middleware_1.authMiddleware, theater_controller_1.deleteTheater);
 // ===== MOVIES =====
-app.post(
-  "/movies",
-  auth_middleware_1.authMiddleware,
-  upload_middleware_1.upload.single("poster"),
-  theater_controller_1.createMovie
-);
+app.post("/movies", auth_middleware_1.authMiddleware, upload_middleware_1.upload.single("poster"), theater_controller_1.createMovie);
 app.get("/movies", theater_controller_1.getMovies);
-app.put(
-  "/movies/:id",
-  auth_middleware_1.authMiddleware,
-  upload_middleware_1.upload.single("poster"),
-  theater_controller_1.updateMovie
-);
-app.delete(
-  "/movies/:id",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.deleteMovie
-);
+app.put("/movies/:id", auth_middleware_1.authMiddleware, upload_middleware_1.upload.single("poster"), theater_controller_1.updateMovie);
+app.delete("/movies/:id", auth_middleware_1.authMiddleware, theater_controller_1.deleteMovie);
 // ===== SCREENINGS =====
-app.post(
-  "/screenings",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.createScreening
-);
+app.post("/screenings", auth_middleware_1.authMiddleware, theater_controller_1.createScreening);
 app.get("/screenings", theater_controller_1.getAllScreenings);
-app.get(
-  "/theaters/:theaterId/screenings",
-  theater_controller_1.getScreeningsByTheaterAndMovie
-);
+app.get("/theaters/:theaterId/screenings", theater_controller_1.getScreeningsByTheaterAndMovie);
 app.get("/screenings-test", (_req, res) => {
-  res.json({ message: "Screenings route works!" });
+    res.json({ message: "Screenings route works!" });
 });
 // ===== SEATS =====
-app.post(
-  "/screenings/:id/seats",
-  auth_middleware_1.authMiddleware,
-  theater_controller_1.createSeats
-);
+app.post("/screenings/:id/seats", auth_middleware_1.authMiddleware, theater_controller_1.createSeats);
 app.get("/screenings/:id/seats", theater_controller_1.getAllSeats);
 // BOOKING ROUTES
-app.post(
-  "/screenings/:id/book",
-  auth_middleware_1.authMiddleware,
-  booking_controller_1.bookSeats
-);
+app.post("/screenings/:id/book", auth_middleware_1.authMiddleware, booking_controller_1.bookSeats);
 app.get("/bookings", booking_controller_1.getBookings);
-app.delete(
-  "/bookings/:id",
-  auth_middleware_1.authMiddleware,
-  booking_controller_1.cancelBooking
-);
+app.delete("/bookings/:id", auth_middleware_1.authMiddleware, booking_controller_1.cancelBooking);
 // SOCKET.IO
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-  socket.on("disconnect", () => console.log("User disconnected:", socket.id));
+    console.log("User connected:", socket.id);
+    socket.on("disconnect", () => console.log("User disconnected:", socket.id));
 });
 // START SERVER
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
