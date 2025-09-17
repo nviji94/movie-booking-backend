@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prisma } from "../prisma";
-import { getBaseUrl } from "../utils/getBaseUrl";
 
 // ===== THEATER CONTROLLERS =====
 
@@ -69,9 +68,7 @@ export const createMovie = async (req: Request, res: Response) => {
     typeof req.body.genre === "string" && req.body.genre.trim() !== ""
       ? req.body.genre
       : "";
-  const posterUrl = req.file
-    ? `${getBaseUrl()}/uploads/${req.file.filename}`
-    : null;
+  const posterUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const movie = await prisma.movie.create({
