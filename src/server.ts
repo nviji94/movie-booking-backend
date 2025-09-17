@@ -3,7 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path";
+
 // Controllers
 import {
   register,
@@ -52,6 +52,7 @@ const io = new Server(server, {
   },
 });
 
+
 // Attach io to app for controllers
 app.set("io", io);
 
@@ -69,8 +70,10 @@ app.use(
   })
 );
 
+
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static("uploads"));
+
 // =======================
 // AUTH ROUTES
 // =======================
