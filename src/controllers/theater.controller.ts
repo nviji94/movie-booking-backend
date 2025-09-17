@@ -70,9 +70,8 @@ export const createMovie = async (req: Request, res: Response) => {
       ? req.body.genre
       : "";
   const posterUrl = req.file
-    ? `${getBaseUrl()}/uploads/${req.file.filename}`
+    ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
     : null;
-
   try {
     const movie = await prisma.movie.create({
       data: {
